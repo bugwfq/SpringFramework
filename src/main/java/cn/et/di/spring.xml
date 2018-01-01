@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    "
+   default-autowire="byName"
+    >
+	<!-- 使用p命名空间简化di依赖注入 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		p:url="jdbc:mysql://localhost:3306/test"
+		p:username="root"
+		p:password="root"
+		p:driverClassName="com.mysql.jdbc.Driver"
+		>
+	</bean>
+	
+	<!-- bean标签引入外部属性文件    spring 2.0时使用  -->
+	<!-- 首先注册   PropertyPlaceholderConfigurer  下面class配置 -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<!-- name为location   value是你配置文件所在的路径  classpath:是指类路径 -->
+		<property name="location" value="classpath:cn/et/di/jdbc.properties"></property>
+	</bean>
+	<!-- 配置文件中键-值的使用  在value中使用el表达式如${配置文件中的键名} -->
+	<bean id="dataSource2" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="url" value="${url}"></property>
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+		<property name="driverClassName" value="${driver}"></property>
+	</bean>
+	<!-- 使用外部属性文件+p命名空间配置jdbc连接  首先需要配置xmlns：context命名空间-->
+	<!-- 使用 property-placeholder 标签       location属性是properties配置文件的路径 -->
+	 <context:property-placeholder location="classpath:cn/et/di/jdbc.properties"/>
+	<!--注意：（重点） 
+		p:属性名与property标签用法一样
+		如果使用<context:property-placeholder标签>
+		如果配置文件中的键名为username  
+		呢么${username}会获取当前操作系统的用户名所以建议配置文件中键不要使用username	
+	 -->
+	 
+	 
+	<bean id="dataSource3" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		p:url="${url}"
+		p:username="${user}"
+		p:password="${password}"
+		p:driverClassName="${driver}"
+		>
+	</bean>
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
+	</bean>
+	<!-- 自动装配   -->
+
+	<bean id="userDao" class="cn.et.di.dao.UserDao" ></bean>
+	<bean id="userManager" class="cn.et.di.service.UserManager"></bean>
+	<bean id="userController" class="cn.et.di.controller.UserController"></bean>
+</beans>

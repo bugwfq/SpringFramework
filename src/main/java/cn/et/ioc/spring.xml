@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 使用带参数的构造器 -->
+    <bean id="boy" class="cn.et.ioc.entity.Boy" >
+    	<!-- index 是构造器中的参数位置传参   从0开始 -->
+    	<constructor-arg index="0" value="胎儿"></constructor-arg>
+    	<!-- type  是某个参数的类型传参   如果是引用类型则使用全类名   -->
+    	<constructor-arg type="int" value="0"></constructor-arg>
+    </bean>
+    <!-- 使用无参数的构造器创建对象和set方法赋值 -->
+    <bean id="girl" class="cn.et.ioc.entity.Girl" >
+    	<!-- name是属性名    value是对应的值 -->
+    	<property name="name" value="母亲"></property>
+    	<property name="age" value="30"></property>
+    	<!-- 如果Bean对象的属性是其他对象则需要用   ref 赋值 -->
+    	<property name="baby" ref="boy"></property>
+    </bean>
+    <!-- 使用内部bean  -->
+    <bean id="girl2" class="cn.et.ioc.entity.Girl" >
+    	<!-- name是属性名    value是对应的值 -->
+    	<property name="name" value="母亲2"></property>
+    	<property name="age" value="30"></property>
+    	<!-- 如果Bean对象的属性是其他对象则需要用   ref 赋值 -->
+    	<property name="baby">
+    		<bean class="cn.et.ioc.entity.Boy" >
+	    		<constructor-arg index="0" value="胎儿"></constructor-arg>
+	    		<constructor-arg type="int" value="0"></constructor-arg>
+ 			 </bean>
+    	</property>
+    </bean>
+<!-- 使用工厂类创建bean实例    
+	方法一  ：非静态方法 -->
+    <!-- 先创建工厂类实例 -->
+	<bean id="bFactory" class="cn.et.ioc.factory.BoyFactory"></bean>
+	<!-- 然后创建对象  并调用工厂类中的方法     
+	factory-bean    工厂类的bean对象 
+	factory-method  工厂类中产生对象的方法  -->
+	<bean id="factoryBoy" factory-bean="bFactory" factory-method="getNewBoy">
+		<property name="name" value="我来自工厂非静态"></property>
+	</bean>
+<!-- 使用工厂类创建bean实例    
+	方法二    静态方法-->
+
+	<!-- 这里的
+	class：路径是工厂的全类名      
+	factory-method:静态的	获取对象的方法	 -->
+	<bean id="factoryGirl" class="cn.et.ioc.factory.GirlFactory" factory-method="getNewGirl">
+		<property name="name" value="我来自工厂"></property>
+	</bean>
+
+<!-- 使用工厂类获取jdbc的链接 -->
+	<bean id="conn" class="java.sql.DriverManager" factory-method="getConnection" >
+		<constructor-arg name="url" value="jdbc:mysql://localhost:3306/news"></constructor-arg>
+		<constructor-arg name="name" value="root"></constructor-arg>
+		<constructor-arg name="password" value="root"></constructor-arg>
+	</bean>
+
+</beans>
